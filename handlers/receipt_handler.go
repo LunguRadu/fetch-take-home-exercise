@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"net/http"
 	"fetch-take-home-exercise/models"
 	"fetch-take-home-exercise/services"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"net/http"
 )
 
 var receipts = make(map[string]models.Receipt)
@@ -18,11 +18,20 @@ func ProcessReceipt(c *gin.Context) {
 	}
 
 	receipt.ID = uuid.New().String()
-	receipt.Points = services.CalculatePoints(receipt)
+
+	user, err := services.GetUser(receipt.UserId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "The user id is invalid"})
+	}
+
+	points := services.CalculatePoints(receipt, user)
+
+	receipt.Points = points
 
 	receipts[receipt.ID] = receipt
+	services.AddUserReceipt(receipt, user.ID)
 
-	c.JSON(http.StatusOK, gin.H{"id": receipt.ID})
+	c.JSON(http.StatusOK, gin.H{"id": receipt.ID, "userId": user.ID})
 }
 
 func GetReceiptPoints(c *gin.Context) {

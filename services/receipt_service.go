@@ -1,15 +1,18 @@
 package services
 
 import (
+	"fetch-take-home-exercise/models"
+	"fetch-take-home-exercise/utils"
 	"math"
 	"strconv"
 	"strings"
-	"fetch-take-home-exercise/models"
-	"fetch-take-home-exercise/utils"
 )
 
-func CalculatePoints(receipt models.Receipt) int {
+func CalculatePoints(receipt models.Receipt, user models.User) int {
 	points := 0
+
+	// 10 points for each recipt
+	points += 10 * len(user.Receipts)
 
 	// One point for every alphanumeric character in the retailer name
 	for _, char := range receipt.Retailer {
